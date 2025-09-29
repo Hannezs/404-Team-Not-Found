@@ -2,6 +2,11 @@
 
 ---
 
+## Team Logo
+<img width="1738" height="1738" alt="sign of team" src="https://github.com/user-attachments/assets/a7129fa7-5f2f-4a46-9081-a2694b926b6f" />
+
+---
+
 ## Welcome to Hannes's world!😍
 
 该从何说起呢，不如先甩出一张照片吧😎
