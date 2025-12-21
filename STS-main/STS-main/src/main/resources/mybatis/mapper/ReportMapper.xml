@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.catowl.sts.mapper.ReportMapper">
+
+    <!-- 1. 插入新报告 (使用 useGeneratedKeys 获取自增主键) -->
+    <insert id="insertReport" parameterType="com.catowl.sts.model.entity.AnalysisReport"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO analysis_reports
+        (str_id, source_id, report_content, qr_code_path,
+         dify_message_id, keywords, is_published, generated_at)
+        VALUES
+            (#{strId}, #{sourceId}, #{reportContent}, #{qrCodePath},
+             #{difyMessageId}, #{keywords}, #{isPublished}, NOW())
+    </insert>
+
+    <!-- 2. 批量插入报告与数据的关联 -->
+    <insert id="insertReportDataLink">
+        INSERT INTO report_data_links (report_id, data_id)
+        VALUES
+        <foreach collection="dataIds" item="dataId" separator=",">
+            (#{reportId}, #{dataId})
+        </foreach>
+    </insert>
+
+    <!-- 3. 根据 StrId 查找水源信息 -->
+    <select id="findWaterSourceByStrId" resultType="com.catowl.sts.model.entity.WaterSource">
+        SELECT id, str_id, user_id, dify_conversation_id, source_name, source_type, description
+        FROM water_sources
+        WHERE str_id = #{sourceStrId} AND is_active = 1
+    </select>
+
+    <!-- 5. 根据水源 ID 查询最近的水质数据 -->
+    <select id="findRecentDataBySourceId" resultType="com.catowl.sts.model.entity.WaterQualityData">
+        SELECT id, str_id, turbidity_value, unit, measured_at
+        FROM water_quality_data
+        WHERE source_id = #{sourceId}
+        ORDER BY measured_at DESC
+            LIMIT #{limit}
+    </select>
+
+    <!-- 6. 获取用户的所有报告 (JOIN 水源表) -->
+    <select id="findReportsByUserId" resultType="com.catowl.sts.model.entity.AnalysisReport">
+        SELECT
+        r.str_id,
+        r.keywords,
+        r.generated_at
+        FROM
+        analysis_reports r
+        JOIN
+        water_sources s ON r.source_id = s.id
+        WHERE
+        s.user_id = #{userId} <!-- 并校验用户ID -->
+        <if test="lastStrId != null and lastStrId != ''">
+            <!-- 游标分页：获取比上一页最后一条记录更早的记录 (str_id 倒序) -->
+            AND r.str_id &lt; #{lastStrId}
+        </if>
+        ORDER BY
+        r.str_id DESC
+        LIMIT #{pageSize}
+    </select>
+
+    <!-- 7. 获取用户拥有的特定报告 (JOIN 水源表) -->
+    <select id="findReportByStrIdAndUserId" resultType="com.catowl.sts.model.vo.ReportDetailVO">
+        SELECT
+            r.id, r.str_id, r.source_id, r.report_content, r.qr_code_path,
+            r.generated_at, r.is_published, r.dify_message_id, r.keywords,
+            s.source_name,s.source_type, s.str_id AS sourceStrId,
+            u.username
+        FROM analysis_reports r
+                 JOIN water_sources s ON r.source_id = s.id
+                 JOIN users u ON s.user_id = u.id
+        WHERE r.str_id = #{reportStrId}
+          AND s.user_id = #{userId}
+    </select>
+
+    <!-- 8. 获取已发布的公开报告 -->
+    <select id="findPublishedReportByStrId" resultType="com.catowl.sts.model.vo.ReportWithSourceDetails">
+        SELECT
+            r.str_id,
+            r.report_content,
+            r.qr_code_path,
+            r.generated_at,
+            r.keywords,
+
+            s.source_name AS sourceName,
+            s.source_type AS sourceType
+
+        FROM analysis_reports r
+                 LEFT JOIN water_sources s ON r.source_id = s.id
+        WHERE r.str_id = #{reportStrId}
+          AND r.is_published = 1
+    </select>
+
+    <!-- 9. 更新报告发布状态 (安全) -->
+    <update id="updateReportStatusByStrIdAndUserId">
+        UPDATE analysis_reports r
+            JOIN water_sources s ON r.source_id = s.id
+            SET r.is_published = #{isPublished}
+        WHERE r.str_id = #{reportStrId}
+          AND s.user_id = #{userId}
+    </update>
+
+    <!-- 10. 删除报告 (安全) -->
+    <delete id="deleteReportByStrIdAndUserId">
+        DELETE r
+        FROM analysis_reports r
+        JOIN water_sources s ON r.source_id = s.id
+        WHERE r.str_id = #{reportStrId}
+        AND s.user_id = #{userId}
+    </delete>
+
+    <select id="findReportTagsBySourceIdWithCursor" resultType="com.catowl.sts.model.entity.AnalysisReport">
+        SELECT
+        r.str_id,
+        r.keywords,
+        r.generated_at
+        FROM
+        analysis_reports r
+        JOIN
+        water_sources s ON r.source_id = s.id
+        WHERE
+        s.str_id = #{sourceStrId}  <!-- 直接使用 sourceStrId -->
+        AND s.user_id = #{userId} <!-- 并校验用户ID -->
+        <if test="lastStrId != null and lastStrId != ''">
+            <!-- 游标分页：获取比上一页最后一条记录更早的记录 (str_id 倒序) -->
+            AND r.str_id &lt; #{lastStrId}
+        </if>
+        ORDER BY
+        r.str_id DESC
+        LIMIT #{pageSize}
+    </select>
+
+    <select id="findLinkedDataByReportId" resultType="com.catowl.sts.model.entity.WaterQualityData">
+        SELECT
+            wqd.id,
+            wqd.str_id,
+            wqd.turbidity_value,
+            wqd.unit,
+            wqd.measured_at
+        FROM
+            water_quality_data wqd
+                JOIN
+            report_data_links rdl ON wqd.id = rdl.data_id
+        WHERE
+            rdl.report_id = #{reportId}
+        ORDER BY
+            wqd.measured_at ASC
+    </select>
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.catowl.sts.mapper.AuthMapper">
+    <select id="selectUser" resultType="com.catowl.sts.model.entity.User">
+        SELECT `str_id`,username,`avatar`, created_at, updated_at, api_key
+        FROM `users`
+        WHERE `id`=#{id};
+    </select>
+
+    <select id="findByUsername" resultType="com.catowl.sts.model.entity.User">
+        SELECT `id`,`str_id`,username,password,`avatar`,`api_key`,created_at,updated_at FROM users WHERE username = #{username}
+    </select>
+    <insert id="insertUser" parameterType="com.catowl.sts.model.entity.User">
+        INSERT INTO users (username,password,str_id,api_key)
+        VALUES (#{username},#{password},#{strId},#{apiKey});
+    </insert>
+    <update id="updateUser" parameterType="com.catowl.sts.model.entity.User">
+        UPDATE users
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="avatar != null and avatar != ''">
+                avatar = #{avatar},
+            </if>
+            <if test="apiKey != null and apiKey != ''">
+                api_key = #{apiKey},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            updated_at = NOW(),
+        </trim>
+        WHERE id = #{id}
+    </update>
+    <select id="getinfobyid" resultType="com.catowl.sts.model.entity.User">
+        SELECT `str_id`,username,password,`avatar`,`bio`,created_at,updated_at FROM users WHERE id = #{id};
+    </select>
+    <delete id="deleteUser" parameterType="java.lang.Long">
+        DELETE FROM users
+        WHERE id = #{id};
+    </delete>
+</mapper>

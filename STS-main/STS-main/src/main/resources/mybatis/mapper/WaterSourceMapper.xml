@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.catowl.sts.mapper.WaterSourceMapper">
+
+    <insert id="insertSource" parameterType="com.catowl.sts.model.entity.WaterSource"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO water_sources
+        (str_id, user_id, source_name, source_type, dify_conversation_id, description, created_at, is_active)
+        VALUES
+            (#{strId}, #{userId}, #{sourceName}, #{sourceType}, #{difyConversationId}, #{description}, #{createdAt}, #{isActive})
+    </insert>
+
+    <delete id="deleteSourceByStrIdAndUserId">
+        DELETE FROM water_sources
+        WHERE str_id = #{strId} AND user_id = #{userId}
+    </delete>
+
+    <select id="findByStrId" resultType="com.catowl.sts.model.entity.WaterSource">
+        SELECT id, str_id, user_id, source_name, source_type, dify_conversation_id, description, created_at, is_active
+        FROM water_sources
+        WHERE str_id = #{strId}
+    </select>
+
+    <select id="findByStrIdAndUserId" resultType="com.catowl.sts.model.entity.WaterSource">
+        SELECT id, str_id, user_id, source_name, source_type, dify_conversation_id, description, created_at, is_active
+        FROM water_sources
+        WHERE str_id = #{strId} AND user_id = #{userId}
+    </select>
+
+    <update id="updateSource" parameterType="com.catowl.sts.model.entity.WaterSource">
+        UPDATE water_sources
+        <set>
+            <if test="sourceName != null">source_name = #{sourceName},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+        </set>
+        WHERE str_id = #{strId} AND user_id = #{userId}
+    </update>
+
+    <select id="findSourcesByUserIdWithCursor" resultType="com.catowl.sts.model.entity.WaterSource">
+        SELECT id, str_id, user_id, source_name, source_type, dify_conversation_id, description, created_at, is_active
+        FROM water_sources
+        WHERE user_id = #{userId}
+        <if test="lastStrId != null and lastStrId != ''">
+            AND str_id &gt; #{lastStrId}
+        </if>
+        <if test="searchName != null and searchName != ''">
+            AND source_name LIKE CONCAT('%', #{searchName}, '%')
+        </if>
+        ORDER BY str_id ASC
+        LIMIT #{pageSize}
+    </select>
+
+</mapper>

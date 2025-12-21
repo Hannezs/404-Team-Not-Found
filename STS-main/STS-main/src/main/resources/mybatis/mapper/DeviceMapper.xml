@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.catowl.sts.mapper.DeviceMapper">
+
+    <insert id="upsertUnclaimedDevice">
+        INSERT INTO unclaimed_devices (mac_address, last_seen)
+        VALUES (#{macAddress}, NOW())
+            ON DUPLICATE KEY UPDATE last_seen = NOW()
+    </insert>
+
+    <select id="findAllUnclaimedDevices" resultType="com.catowl.sts.model.entity.UnclaimedDevice">
+        SELECT mac_address, last_seen FROM unclaimed_devices ORDER BY last_seen DESC
+    </select>
+
+    <delete id="deleteUnclaimedDevice">
+        DELETE FROM unclaimed_devices WHERE mac_address = #{macAddress}
+    </delete>
+
+    <insert id="insertDevicePairing">
+        INSERT INTO device_pairings (mac_address, source_id, created_at)
+        VALUES (#{macAddress}, #{sourceId}, NOW())
+    </insert>
+
+    <select id="countPairingByMac" resultType="int">
+        SELECT COUNT(*) FROM device_pairings WHERE mac_address = #{macAddress}
+    </select>
+
+    <select id="findConfigByMacAddress" resultType="com.catowl.sts.model.dto.Response.DeviceConfigResponse">
+        SELECT
+            u.api_key AS deviceApiKey,
+            s.str_id AS sourceStrId
+        FROM device_pairings dp
+                 JOIN water_sources s ON dp.source_id = s.id
+                 JOIN users u ON s.user_id = u.id
+        WHERE dp.mac_address = #{macAddress}
+    </select>
+
+    <select id="findUserIdByApiKey" resultType="java.lang.Long">
+        SELECT id FROM users WHERE api_key = #{apiKey}
+    </select>
+</mapper>

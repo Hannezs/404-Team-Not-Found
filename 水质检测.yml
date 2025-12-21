@@ -1,0 +1,520 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: 水质检测
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.1.3@08f25a10c0617a3512fac091a0f0d894925357e965efe40fdf95cb48e09b62d1
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1762789118108-source-1762789208797-target
+      selected: false
+      source: '1762789118108'
+      sourceHandle: source
+      target: '1762789208797'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: 1762790504915-source-1762791832545-target
+      selected: false
+      source: '1762790504915'
+      sourceHandle: source
+      target: '1762791832545'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 1762791832545-source-1762789118108-target
+      selected: false
+      source: '1762791832545'
+      sourceHandle: source
+      target: '1762789118108'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: if-else
+      id: 1762330690226-source-1765092980368-target
+      source: '1762330690226'
+      sourceHandle: source
+      target: '1765092980368'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: 1765092980368-true-1762790504915-target
+      source: '1765092980368'
+      sourceHandle: 'true'
+      target: '1762790504915'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1765092980368-false-1765093002831-target
+      source: '1765092980368'
+      sourceHandle: 'false'
+      target: '1765093002831'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: inputs
+        selected: false
+        title: inputs
+        type: start
+        variables:
+        - default: ''
+          hint: ''
+          label: sourceName
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: false
+          type: text-input
+          variable: sourceName
+        - default: ''
+          hint: ''
+          label: sourceType
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: false
+          type: text-input
+          variable: sourceType
+        - default: ''
+          hint: ''
+          label: description
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: false
+          type: text-input
+          variable: description
+        - default: ''
+          hint: ''
+          label: recent_turbidity_data
+          max_length: 1001
+          options: []
+          placeholder: ''
+          required: false
+          type: paragraph
+          variable: recent_turbidity_data
+      height: 214
+      id: '1762330690226'
+      position:
+        x: -450.01791756328646
+        y: 278.3512997357964
+      positionAbsolute:
+        x: -450.01791756328646
+        y: 278.3512997357964
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params: {}
+          mode: chat
+          name: qvq-max-latest
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: e7cf58f9-5766-40c9-8d35-9059270f72f6
+          role: system
+          text: '你是一名资深水环境工程师，负责依据实时水质监测数据编制水源水质分析简报。请基于以下数据生成一份面向水源管理及水厂预处理岗位的操作级技术简报，要求如下：
+
+
+            字数：150–200字；语言精炼、数据驱动、指令明确
+
+            若存在超标或趋势性恶化风险，须首句以【⚠️警报】标出
+
+            内容结构：（必须严格遵循）
+
+            数据概要：点位属性+核心指标统计（样本量、均值、极值、趋势）
+
+            水质定级：依据《地表水环境质量标准》（GB 3838-2002）判定类别及风险等级
+
+            风险预警：指出关键超标/异常参数，按对取水安全的影响排序优先级
+
+            应对指令：给出可操作的应急/强化措施建议，并明确后续加密监测频次与节点
+
+            【监测点信息】
+
+
+            点位名称：{{data_processor.result.source_info.name}}
+
+            水体类型：{{data_processor.result.source_info.type}}（如：河流型水源地/水库型水源地）
+
+            地理位置：{{data_processor.result.source_info.description}}
+
+            【关键监测指标】
+
+
+            浊度（NTU）：当前值 {{data_processor.result.latest_value}}｜均值 {{data_processor.result.average_value}}｜范围
+            {{data_processor.result.min_value}}–{{data_processor.result.max_value}}｜趋势：{{data_processor.result.trend}}
+
+            【评估结论】
+
+
+            水质类别：{{quality_analyzer.result.quality_level}}（{{quality_analyzer.result.quality_level_en}}）
+
+            风险等级：{{quality_analyzer.result.risk_level}}
+
+            依据标准：{{quality_analyzer.result.standard_reference}}
+
+            警报信息：{{quality_analyzer.result.alert_message}}
+
+            处置建议：{{quality_analyzer.result.suggestion}}，若存在超标或趋势性恶化风险，首句必须以【⚠️警报】标识
+
+            若水质处于稳定/达标状态，仅进行正向评价与管理鼓励，不提出额外处置建议
+
+            不要输出生成日期'
+        - id: 04f83d04-6fef-4d93-b125-16469ef29329
+          role: user
+          text: '{{#1762791832545.output#}}
+
+            水源名称：{{#1762330690226.sourceName#}}
+
+            水源类型：{{#1762330690226.sourceType#}}
+
+            水源描述：{{#1762330690226.description#}}
+
+            水源浊度历史数据（由新到旧）：{{#1762330690226.recent_turbidity_data#}}
+
+            {{#sys.query#}}'
+        retry_config:
+          max_retries: 1
+          retry_enabled: false
+          retry_interval: 1000
+        selected: true
+        structured_output_enabled: false
+        title: LLM
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1762789118108'
+      position:
+        x: 1010.365937830098
+        y: 282
+      positionAbsolute:
+        x: 1010.365937830098
+        y: 282
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        answer: '{{#1762789118108.text#}}'
+        selected: false
+        title: 直接回复
+        type: answer
+        variables: []
+      height: 102
+      id: '1762789208797'
+      position:
+        x: 1341.9559743696802
+        y: 287.0822049124819
+      positionAbsolute:
+        x: 1341.9559743696802
+        y: 287.0822049124819
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "def main(source_name, source_type: str, description: str, recent_turbidity_data:\
+          \ str):\n    \"\"\"\n    预处理浊度数据并验证有效性，适配 Dify 工作流节点\n    参数说明:\n    - source_name:\
+          \ 数据源名称\n    - source_type: 数据源类型  \n    - description: 数据描述\n    - recent_turbidity_data:\
+          \ 最近的浊度数据字符串，逗号分隔\n    \"\"\"\n    try:\n        print(f\"数据源信息: {source_name},\
+          \ {source_type}\")\n        print(f\"接收到的浊度数据: {recent_turbidity_data}\"\
+          )\n\n        # 处理可能的空值\n        source_name = source_name or \"\"\n    \
+          \    source_type = source_type or \"\"\n        description = description\
+          \ or \"\"\n        recent_turbidity_data = recent_turbidity_data or \"\"\
+          \n\n        if not recent_turbidity_data.strip():\n            return {\n\
+          \                \"output\": {\n                    \"is_valid\": False,\n\
+          \                    \"error_reason\": \"无有效的浊度数据\",\n                 \
+          \   \"data_count\": 0,\n                    \"values\": [],\n          \
+          \          \"source_info\": {\n                        \"name\": source_name,\n\
+          \                        \"type\": source_type,\n                      \
+          \  \"description\": description\n                    }\n               \
+          \ }\n            }\n\n        values = [x.strip() for x in recent_turbidity_data.split(\"\
+          ,\") if x.strip()]\n        turbidity_values = []\n        for val in values:\n\
+          \            try:\n                num_val = float(val)\n              \
+          \  turbidity_values.append(num_val)\n            except ValueError:\n  \
+          \              print(f\"忽略无效数值: {val}\")\n                continue\n\n \
+          \       if not turbidity_values:\n            return {\n               \
+          \ \"output\": {\n                    \"is_valid\": False,\n            \
+          \        \"error_reason\": \"解析后无有效数据\",\n                    \"data_count\"\
+          : 0,\n                    \"values\": [],\n                    \"source_info\"\
+          : {\n                        \"name\": source_name,\n                  \
+          \      \"type\": source_type,\n                        \"description\":\
+          \ description\n                    }\n                }\n            }\n\
+          \n        latest_value = turbidity_values[0]\n        avg_value = sum(turbidity_values)\
+          \ / len(turbidity_values)\n        max_value = max(turbidity_values)\n \
+          \       min_value = min(turbidity_values)\n\n        # 趋势分析\n        trend\
+          \ = \"稳定\"\n        if len(turbidity_values) > 1:\n            change =\
+          \ latest_value - turbidity_values[-1]\n            change_percent = (change\
+          \ / turbidity_values[-1]) * 100 if turbidity_values[-1] != 0 else 0\n  \
+          \          if change_percent > 10:\n                trend = \"明显上升\"\n \
+          \           elif change_percent > 5:\n                trend = \"上升\"\n \
+          \           elif change_percent < -10:\n                trend = \"明显下降\"\
+          \n            elif change_percent < -5:\n                trend = \"下降\"\n\
+          \n        return {\n            \"output\": {\n                \"is_valid\"\
+          : True,\n                \"data_count\": len(turbidity_values),\n      \
+          \          \"values\": turbidity_values,\n                \"latest_value\"\
+          : round(latest_value, 2),\n                \"average_value\": round(avg_value,\
+          \ 2),\n                \"max_value\": round(max_value, 2),\n           \
+          \     \"min_value\": round(min_value, 2),\n                \"trend\": trend,\n\
+          \                \"unit\": \"NTU\",\n                \"source_info\": {\n\
+          \                    \"name\": source_name,\n                    \"type\"\
+          : source_type,\n                    \"description\": description\n     \
+          \           }\n            }\n        }\n\n    except Exception as e:\n\
+          \        return {\n            \"output\": {\n                \"is_valid\"\
+          : False,\n                \"error_reason\": f\"数据处理错误: {str(e)}\",\n   \
+          \             \"data_count\": 0,\n                \"values\": [],\n    \
+          \            \"source_info\": {\n                    \"name\": source_name\
+          \ or \"\",\n                    \"type\": source_type or \"\",\n       \
+          \             \"description\": description or \"\"\n                }\n\
+          \            }\n        }"
+        code_language: python3
+        outputs:
+          output:
+            children: null
+            type: object
+        selected: false
+        title: data_processor
+        type: code
+        variables:
+        - value_selector:
+          - '1762330690226'
+          - sourceName
+          value_type: string
+          variable: source_name
+        - value_selector:
+          - '1762330690226'
+          - sourceType
+          value_type: string
+          variable: source_type
+        - value_selector:
+          - '1762330690226'
+          - description
+          value_type: string
+          variable: description
+        - value_selector:
+          - '1762330690226'
+          - recent_turbidity_data
+          value_type: string
+          variable: recent_turbidity_data
+      height: 51
+      id: '1762790504915'
+      position:
+        x: 415.45796547981786
+        y: 282
+      positionAbsolute:
+        x: 415.45796547981786
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "import json\n\ndef main(inputs):\n    \"\"\"\n    基于浊度值进行水质分析和等级判断，适配\
+          \ Dify 工作流\n    \"\"\"\n    try:\n        turbidity = inputs.get(\"latest_value\"\
+          )\n        trend = inputs.get(\"trend\", \"未知\")\n\n        if turbidity\
+          \ is None:\n            raise ValueError(\"缺少 latest_value 输入\")\n\n   \
+          \     # 水质分级标准\n        if turbidity < 1:\n            level, level_en,\
+          \ color, risk = \"优秀\", \"Excellent\", \"#10B981\", \"低风险\"\n          \
+          \  standard = \"饮用水标准\"\n        elif turbidity < 5:\n            level,\
+          \ level_en, color, risk = \"良好\", \"Good\", \"#3B82F6\", \"低风险\" \n    \
+          \        standard = \"生活用水标准\"\n        elif turbidity < 10:\n         \
+          \   level, level_en, color, risk = \"中等\", \"Fair\", \"#F59E0B\", \"中风险\"\
+          \n            standard = \"一般用水标准\"\n        elif turbidity < 20:\n    \
+          \        level, level_en, color, risk = \"较差\", \"Poor\", \"#EF4444\", \"\
+          高风险\"\n            standard = \"需处理用水\"\n        else:\n            level,\
+          \ level_en, color, risk = \"严重污染\", \"Severe\", \"#7F1D1D\", \"极高风险\"\n\
+          \            standard = \"不宜使用\"\n\n        # 建议内容\n        suggestion_map\
+          \ = {\n            \"优秀\": \"水质极佳，符合直接饮用标准，建议继续保持当前监测频率。\",\n          \
+          \  \"良好\": \"水质良好，适合日常生活使用，建议定期监测确保水质稳定。\",\n            \"中等\": \"建议进行过滤处理后再使用，并增加监测频率至每日一次。\"\
+          , \n            \"较差\": \"需要经过专业水处理设备处理，建议立即排查污染源。\",\n            \"严重污染\"\
+          : \"严禁使用，需立即采取应急治理措施并上报相关部门。\"\n        }\n\n        # 警报判断\n        is_alert\
+          \ = turbidity > 10\n        alert_level = \"high\" if turbidity > 20 else\
+          \ \"medium\" if turbidity > 10 else \"none\"\n        alert_message = generate_alert_message(level,\
+          \ turbidity, trend)\n\n        result_data = {\n            \"quality_level\"\
+          : level,\n            \"quality_level_en\": level_en,\n            \"risk_level\"\
+          : risk,\n            \"color_code\": color,\n            \"standard_reference\"\
+          : standard,\n            \"suggestion\": suggestion_map.get(level, \"请进行专业水质检测分析\"\
+          ),\n            \"is_alert\": is_alert,\n            \"alert_level\": alert_level,\n\
+          \            \"alert_message\": alert_message\n        }\n\n        return\
+          \ {\n            \"output\": json.dumps(result_data, ensure_ascii=False)\n\
+          \        }\n\n    except Exception as e:\n        return {\n           \
+          \ \"output\": json.dumps({\n                \"error\": f\"处理失败: {str(e)}\"\
+          \n            }, ensure_ascii=False)\n        }\n\ndef generate_alert_message(level,\
+          \ turbidity, trend):\n    \"\"\"生成警报信息\"\"\"\n    if turbidity > 20:\n \
+          \       return f\" 严重污染警报！浊度值 {turbidity} NTU 严重超标，请立即处理！\"\n    elif turbidity\
+          \ > 10:\n        return f\" 水质超标警报！当前浊度 {turbidity} NTU，趋势 {trend}，建议采取措施。\"\
+          \n    else:\n        return None\n"
+        code_language: python3
+        outputs:
+          output:
+            children: null
+            type: string
+        selected: false
+        title: quality_analyzer
+        type: code
+        variables:
+        - value_selector:
+          - '1762790504915'
+          - output
+          value_type: object
+          variable: inputs
+      height: 51
+      id: '1762791832545'
+      position:
+        x: 708.7641969872772
+        y: 282
+      positionAbsolute:
+        x: 708.7641969872772
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: not empty
+            id: c0a3d61d-a06d-4df8-b54e-a3990ff739a2
+            value: ''
+            varType: string
+            variable_selector:
+            - '1762330690226'
+            - recent_turbidity_data
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: 条件分支
+        type: if-else
+      height: 123
+      id: '1765092980368'
+      position:
+        x: 13.371196364579703
+        y: 269.8363926022989
+      positionAbsolute:
+        x: 13.371196364579703
+        y: 269.8363926022989
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        answer: 创建水源聊天成功
+        selected: false
+        title: 直接回复 2
+        type: answer
+        variables: []
+      height: 99
+      id: '1765093002831'
+      position:
+        x: 428.73091452786014
+        y: 375.31823726201054
+      positionAbsolute:
+        x: 428.73091452786014
+        y: 375.31823726201054
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    viewport:
+      x: -404.3485542870576
+      y: 2.1864340939799263
+      zoom: 0.9040944824368164
+  rag_pipeline_variables: []

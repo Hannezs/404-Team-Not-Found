@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.catowl.sts.mapper.WaterDataMapper">
+
+    <insert id="insertData" parameterType="com.catowl.sts.model.entity.WaterQualityData"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO water_quality_data
+            (str_id, source_id, turbidity_value, unit, measured_at, uploaded_at)
+        VALUES
+            (#{strId}, #{sourceId}, #{turbidityValue}, #{unit}, #{measuredAt}, #{uploadedAt})
+    </insert>
+
+    <!-- 批量插入 -->
+    <insert id="insertDataBatch" parameterType="java.util.List">
+        INSERT INTO water_quality_data
+        (str_id, source_id, turbidity_value, unit, measured_at, uploaded_at)
+        VALUES
+        <foreach collection="dataList" item="item" separator=",">
+            (#{item.strId}, #{item.sourceId}, #{item.turbidityValue}, #{item.unit}, #{item.measuredAt}, #{item.uploadedAt})
+        </foreach>
+    </insert>
+
+    <select id="findDataBySourceIdAndTimeRange" resultType="com.catowl.sts.model.entity.WaterQualityData">
+        SELECT
+            id, str_id, source_id, turbidity_value, unit, measured_at, uploaded_at
+        FROM
+            water_quality_data
+        WHERE
+            source_id = #{sourceId}
+          AND measured_at BETWEEN #{startTime} AND #{endTime}
+        ORDER BY
+            measured_at ASC
+    </select>
+
+</mapper>
